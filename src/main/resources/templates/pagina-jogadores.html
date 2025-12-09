@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Arena Games - Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="bg-dark">
+
+<div class="container mt-5">
+    <div class="header-custom text-center">
+        <h1><i class="fa-solid fa-gamepad"></i> ARENA GAMES <span style="font-size:0.5em; color: white;">MANAGER</span></h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div th:if="${erro}" class="alert alert-danger fade show border-0 shadow">
+                <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${erro}"></span>
+            </div>
+
+            <div class="card card-custom">
+                <div class="card-body">
+                    <h4 class="card-title mb-4"><i class="fa-solid fa-user-ninja"></i> NOVO PLAYER</h4>
+                    <form th:action="@{/jogadores/salvar}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">NICKNAME</label>
+                            <input type="text" name="nickname" class="form-control" placeholder="Ex: ShadowHunter" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">NOME REAL</label>
+                            <input type="text" name="nomeReal" class="form-control" placeholder="Nome Completo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">EMAIL</label>
+                            <input type="email" name="email" class="form-control" placeholder="email@game.com">
+                        </div>
+                        <button type="submit" class="btn btn-cyber w-100 py-2 mt-2">
+                            <i class="fa-solid fa-save"></i> CADASTRAR
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card card-custom">
+                <div class="card-body">
+                    <h4 class="card-title mb-4"><i class="fa-solid fa-list-ul"></i> RANKING</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>PLAYER</th>
+                                <th class="text-center">SCORE</th>
+                                <th class="text-center">CONTROLES</th>
+                                <th class="text-end">AÇÕES</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="jogador : ${listaJogadores}">
+                                <td th:text="${jogador.id}" class="text-muted fw-bold">1</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3 text-center" style="width: 40px;">
+                                            <i class="fa-solid fa-robot fa-2x" style="color: #45a29e;"></i>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold d-block text-white" style="font-size: 1.1em;" th:text="${jogador.nickname}">Nick</span>
+                                            <small class="text-muted" th:text="${jogador.email}">Email</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="mb-2">
+                                        <i class="fa-solid fa-trophy text-warning"></i>
+                                        <span th:id="'vitorias-' + ${jogador.id}" class="fw-bold fs-5 text-white ms-1" th:text="${jogador.vitorias}">0</span>
+                                    </div>
+                                    <div>
+                                        <i class="fa-solid fa-skull text-danger"></i>
+                                        <span th:id="'derrotas-' + ${jogador.id}" class="fw-bold fs-5 text-secondary ms-1" th:text="${jogador.derrotas}">0</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column align-items-center gap-2">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-secondary btn-score" type="button"
+                                                    th:onclick="'atualizarScore(event, \'/jogadores/' + ${jogador.id} + '/vitoria/remover\', \'vitorias-' + ${jogador.id} + '\', \'subtrair\')'">
+                                                <i class="fa-solid fa-minus"></i>
+                                            </button>
+                                            <button class="btn btn-score" type="button" style="background-color: #45a29e; color: black; border:none;"
+                                                    th:onclick="'atualizarScore(event, \'/jogadores/' + ${jogador.id} + '/vitoria\', \'vitorias-' + ${jogador.id} + '\', \'somar\')'">
+                                                <i class="fa-solid fa-plus"></i>
+                                            </button>
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-secondary btn-score" type="button"
+                                                    th:onclick="'atualizarScore(event, \'/jogadores/' + ${jogador.id} + '/derrota/remover\', \'derrotas-' + ${jogador.id} + '\', \'subtrair\')'">
+                                                <i class="fa-solid fa-minus"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-score" type="button"
+                                                    th:onclick="'atualizarScore(event, \'/jogadores/' + ${jogador.id} + '/derrota\', \'derrotas-' + ${jogador.id} + '\', \'somar\')'">
+                                                <i class="fa-solid fa-skull"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end gap-2 align-items-center h-100">
+                                        <button type="button" class="btn btn-sm btn-outline-info border-0 p-2"
+                                                title="Editar Dados"
+                                                data-bs-toggle="modal" data-bs-target="#modalEditar"
+                                                th:data-id="${jogador.id}"
+                                                th:data-nick="${jogador.nickname}"
+                                                th:data-nome="${jogador.nomeReal}"
+                                                th:data-email="${jogador.email}"
+                                                onclick="prepararEdicao(this)">
+                                            <i class="fa-solid fa-pen fa-lg"></i>
+                                        </button>
+
+                                        <form th:action="@{/jogadores/{id}/deletar(id=${jogador.id})}" method="post" onsubmit="confirmarExclusao(event)" style="margin:0;">
+                                            <button type="submit" class="btn btn-sm btn-dark text-danger border-0 p-2" title="Excluir Definitivamente">
+                                                <i class="fa-solid fa-trash-can fa-lg"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${listaJogadores.empty}" class="text-center mt-4 p-4 border border-secondary rounded text-muted" style="border-style: dashed !important;">
+                        <i class="fa-solid fa-ghost fa-2x mb-2"></i><br>A arena está vazia...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #1f2833; color: #c5c6c7; border: 1px solid #45a29e;">
+            <div class="modal-header" style="border-bottom: 1px solid #45a29e;">
+                <h5 class="modal-title" style="color: #66fcf1;"><i class="fa-solid fa-user-pen"></i> EDITAR</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/jogadores/atualizar}" method="post">
+                    <input type="hidden" id="editId" name="id">
+                    <div class="mb-3">
+                        <label class="form-label text-white">Nickname</label>
+                        <input type="text" id="editNick" name="nickname" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white">Nome Real</label>
+                        <input type="text" id="editNome" name="nomeReal" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white">Email</label>
+                        <input type="email" id="editEmail" name="email" class="form-control">
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-cyber px-4">SALVAR</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
